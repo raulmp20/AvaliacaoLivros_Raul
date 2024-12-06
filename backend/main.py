@@ -1,6 +1,7 @@
 import datetime
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, root_validator
 from typing import List, Optional
 import time
@@ -10,7 +11,11 @@ import os
 # Função para obter a conexão com o banco de dados PostgreSQL
 async def get_database():
     DATABASE_URL = os.environ.get("PGURL", "postgres://postgres:postgres@db:5432/livros")
-    return await asyncpg.connect(DATABASE_URL)
+    try:
+        return await asyncpg.connect(DATABASE_URL)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Erro ao conectar ao banco de dados: {str(e)}")
+
 
 # Inicializar a aplicação FastAPI
 app = FastAPI()
@@ -33,21 +38,20 @@ class LivroBase(BaseModel):
     status_leitura: bool = False
     nota: Optional[int] = None
 
-    @root_validator
+    @root_validator(skip_on_failure=True)
     def validar_nota(cls, values):
         status_leitura = values.get('status_leitura')
         nota = values.get('nota')
-
-        if status_leitura is False and nota is not None:
+        if not status_leitura and nota is not None:
             raise ValueError("Nota só pode ser preenchida se o status de leitura for verdadeiro.")
-
         return values
+
 
 # Modelo para avaliacao de Livros
 class AvaliacaoLivros(BaseModel):
     texto_avaliacao: str
 
-# Modelo para atualizar atributos de uma mercadoria (exceto o codigo)
+# Modelo para atualizar atributos de um livro (exceto o codigo)
 class AtualizarLivro(BaseModel):
     titulo: Optional[str] = None
     autor: Optional[str] = None
@@ -65,11 +69,18 @@ async def log_requests(request: Request, call_next):
     print(f"Path: {request.url.path}, Method: {request.method}, Process Time: {process_time:.4f}s")
     return response
 
+@app.exception_handler(HTTPException)
+async def custom_http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
 # Função para verificar se o livro existe usando titulo
 async def livro_existe(titulo: str, conn: asyncpg.Connection):
     try:
         query = "SELECT * FROM livros WHERE LOWER(titulo) = LOWER($1)"
-        result = await conn.fetchval(query, titulo)
+        result = await conn.fetchrow(query, titulo)
         return result is not None
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Falha ao verificar se o livro existe: {str(e)}")
@@ -119,32 +130,25 @@ async def listar_livro_por_id(livro_id: int):
 
 # 4. Avaliar um Livro
 @app.put("/api/v1/livros/{livro_id}/avaliar/")
-async def avaliar_livro(livro_id:int, nota_livro:int, avaliacao: AvaliacaoLivros):
+async def avaliar_livro(livro_id:int, avaliacao: AvaliacaoLivros):
     conn = await get_database()
     try:
         # Verificar se o livro existe
-        query = "SELECT * FROM livros WHERE id = $1"
-        livro = await conn.fetchrow(query, livro_id)
+        livro_query = "SELECT * FROM livros WHERE id = $1"
+        livro = await conn.fetchrow(livro_query, livro_id)
         if livro is None:
             raise HTTPException(status_code=404, detail="Livro não encontrado.")
 
-        # Validar nota
-        if not (0 <= nota_livro <= 10):
-            raise HTTPException(status_code=400, detail="A nota deve estar entre 0 e 10.")
-
-        # Atualizar nota do livro
-        atualizar_nota_query = "UPDATE livros SET nota = $1 WHERE id = $2"
-        await conn.execute(atualizar_nota_query, nota_livro, livro_id)
 
         # Inserir resenha na tabela avaliacao
-        inserir_avaliacao_query = """ INSERT INTO avaliacao (livro_id, texto_avaliacao, data_avaliacao) VALUES ($1, $2, $3)"""
-        await conn.execute(inserir_avaliacao_query, livro_id, avaliacao.texto_avaliacao, datetime.UTC)
+        inserir_avaliacao_query = """ INSERT INTO avaliacoes (livro_id, texto_avaliacao) VALUES ($1, $2)"""
+        await conn.execute(inserir_avaliacao_query, livro_id, avaliacao.texto_avaliacao)
 
-        # Criar um novo dicionário com os dados atualizados
-        livro_atualizado = dict(livro)
-        livro_atualizado['nota'] = nota_livro
 
-        return {"message": "Venda realizada com sucesso!", "livro": livro_atualizado}
+        return {
+            "message": "Livro avaliado com sucesso!",
+            "dados": dict(avaliacao),
+        }
     finally:
         await conn.close()
 # 5. Atualizar atributos de um livro pelo id (exceto o id)
@@ -166,7 +170,7 @@ async def atualizar_livro(livro_id: int, livro_atualizacao: AtualizarLivro):
                 ano_publicacao = COALESCE($3, ano_publicacao),
                 editora = COALESCE($4, editora),
                 status_leitura = COALESCE($5, status_leitura),
-                nota = COALESCE($6, nota),
+                nota = COALESCE($6, nota)
             WHERE id = $7
         """
         await conn.execute(
@@ -192,10 +196,10 @@ async def remover_livro(livro_id: int):
         query = "SELECT * FROM livros WHERE id = $1"
         livro = await conn.fetchrow(query, livro_id)
         if livro is None:
-            raise HTTPException(status_code=404, detail="Mercadoria não encontrada.")
+            raise HTTPException(status_code=404, detail="Livro não encontrado.")
 
         # Remover o livro do banco de dados
-        delete_query = "DELETE FROM livro WHERE id = $1"
+        delete_query = "DELETE FROM livros WHERE id = $1"
         await conn.execute(delete_query, livro_id)
         return {"message": "Livro removido com sucesso!"}
     finally:
@@ -206,6 +210,8 @@ async def remover_livro(livro_id: int):
 async def resetar_livros():
     init_sql = os.getenv("INIT_SQL", "db/init.sql")
     conn = await get_database()
+    if not os.path.exists(init_sql):
+        raise HTTPException(status_code=500, detail="Arquivo de inicialização não encontrado.")
     try:
         # Read SQL file contents
         with open(init_sql, 'r') as file:
@@ -222,10 +228,12 @@ async def resetar_livros():
 async def listar_avaliacoes():
     conn = await get_database()
     try:
-        # Buscar todas as avaliacoes no banco de dados
-        query = "SELECT * FROM avaliacoes"
+        query = """
+        SELECT a.id, l.titulo AS livro_titulo, l.nota, a.texto_avaliacao, a.data_avaliacao, a.livro_id
+        FROM avaliacoes a
+        JOIN livros l ON a.livro_id = l.id
+        """
         rows = await conn.fetch(query)
-        avaliacoes = [dict(row) for row in rows]
-        return avaliacoes
+        return [dict(row) for row in rows]
     finally:
         await conn.close()

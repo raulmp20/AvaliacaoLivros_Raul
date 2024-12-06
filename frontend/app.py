@@ -16,135 +16,173 @@ def index():
 
 # Rota para exibir o formulário de cadastro
 @app.route('/cadastro', methods=['GET'])
-def inserir_mercadoria_form():
+def inserir_livro_form():
     return render_template('cadastro.html')
 
 
 # Rota para enviar os dados do formulário de cadastro para a API
 @app.route('/inserir', methods=['POST'])
-def inserir_mercadoria():
-    nome = request.form['nome']
-    quantidade = request.form['quantidade']
-    preco = request.form['preco']
+def inserir_livro():
+    titulo = request.form['titulo']
+    autor = request.form['autor']
+    ano_publicacao =request.form['ano_publicacao']
+    editora = request.form['editora']
+    status_leitura = request.form['status_leitura'] == 'true'
+    nota = request.form['nota']
+    nota = int(nota) if nota else None
 
     payload = {
-        'nome': nome,
-        'quantidade': quantidade,
-        'preco': preco
+        'titulo': titulo,
+        'autor': autor,
+        'ano_publicacao': ano_publicacao,
+        'editora': editora,
+        'status_leitura': status_leitura,
+        'nota': nota
     }
 
-    response = requests.post(f'{API_BASE_URL}/api/v1/mercadorias/', json=payload)
+    response = requests.post(f'{API_BASE_URL}/api/v1/livros/', json=payload)
 
     if response.status_code == 201:
-        return redirect(url_for('listar_mercadorias'))
+        return redirect(url_for('listar_livros'))
     else:
-        return "Erro ao inserir mercadoria", 500
+        return "Erro ao inserir livro", 500
 
 
-# Rota para listar todas as mercadorias
-@app.route('/estoque', methods=['GET'])
-def listar_mercadorias():
-    response = requests.get(f'{API_BASE_URL}/api/v1/mercadorias/')
+
+# Rota para listar todos livros
+@app.route('/prateleira', methods=['GET'])
+def listar_livros():
+    response = requests.get(f'{API_BASE_URL}/api/v1/livros/')
     try:
-        mercadorias = response.json()
+        livros = response.json()
     except:
-        mercadorias = []
-    return render_template('estoque.html', mercadorias=mercadorias)
+        livros = []
+    return render_template('prateleira.html', livros=livros)
 
 
-# Rota para exibir o formulário de edição de mercadoria
-@app.route('/atualizar/<int:mercadoria_codigo>', methods=['GET'])
-def atualizar_mercadoria_form(mercadoria_codigo):
-    response = requests.get(f"{API_BASE_URL}/api/v1/mercadorias/")
-    # filtrando apenas a mercadoria correspondente ao Codigo
-    mercadorias = [mercadoria for mercadoria in response.json() if mercadoria['codigo'] == mercadoria_codigo]
-    if len(mercadorias) == 0:
-        return "mercadoria não encontrada", 404
-    mercadoria = mercadorias[0]
-    return render_template('atualizar.html', mercadoria=mercadoria)
+# Rota para exibir o formulário de edição do livro
+@app.route('/atualizar/<int:livro_id>', methods=['GET'])
+def atualizar_livro_form(livro_id):
+    response = requests.get(f"{API_BASE_URL}/api/v1/livros/")
+    # filtrando apenas o livro correspondente ao ID
+    livros = [livro for livro in response.json() if livro['id'] == livro_id]
+    if len(livros) == 0:
+        return "livro não encontrado", 404
+    livro = livros[0]
+    return render_template('atualizar.html', livro=livro)
 
 
-# Rota para enviar os dados do formulário de edição de mercadoria para a API
-@app.route('/atualizar/<int:mercadoria_codigo>', methods=['POST'])
-def atualizar_mercadoria(mercadoria_codigo):
-    nome = request.form['nome']
-    quantidade = request.form['quantidade']
-    preco = request.form['preco']
+# Rota para enviar os dados do formulário de edição do livro para a API
+@app.route('/atualizar/<int:livro_id>', methods=['POST'])
+def atualizar_livro(livro_id):
+    titulo = request.form['titulo']
+    autor = request.form['autor']
+    ano_publicacao = request.form['ano_publicacao']
+    editora = request.form['editora']
+    status_leitura = request.form['status_leitura']
+    nota = request.form['nota']
 
     payload = {
-        'codigo': mercadoria_codigo,
-        'nome': nome,
-        'quantidade': quantidade,
-        'preco': preco
+        'id': livro_id,
+        'titulo': titulo,
+        'autor': autor,
+        'ano_publicacao': ano_publicacao,
+        'editora': editora,
+        'status_leitura': status_leitura,
+        'nota': nota
     }
 
-    response = requests.patch(f"{API_BASE_URL}/api/v1/mercadorias/{mercadoria_codigo}", json=payload)
+    response = requests.patch(f"{API_BASE_URL}/api/v1/livros/{livro_id}", json=payload)
 
     if response.status_code == 200:
-        return redirect(url_for('listar_mercadorias'))
+        return redirect(url_for('listar_livros'))
     else:
-        return "Erro ao atualizar mercadoria", 500
+        return "Erro ao atualizar livro", 500
 
 
-# Rota para exibir o formulário de edição de mercadoria
-@app.route('/vender/<int:mercadoria_codigo>', methods=['GET'])
-def vender_mercadoria_form(mercadoria_codigo):
-    response = requests.get(f"{API_BASE_URL}/api/v1/mercadorias/")
-    # filtrando apenas a mercadoria correspondente ao Codigo
-    mercadorias = [mercadoria for mercadoria in response.json() if mercadoria['codigo'] == mercadoria_codigo]
-    if len(mercadorias) == 0:
-        return "mercadoria não encontrada", 404
-    mercadoria = mercadorias[0]
-    return render_template('vender.html', mercadoria=mercadoria)
+# Rota para exibir o formulário de edição do livro
+@app.route('/avaliar/<int:livro_id>', methods=['GET'])
+def avaliar_livro_form(livro_id):
+    response = requests.get(f"{API_BASE_URL}/api/v1/livros/{livro_id}")
+    if response.status_code != 200:
+        return "Livro não encontrado", 404
+
+    livro = response.json()
+    return render_template('avaliar.html', livro=livro)
 
 
-# Rota para vender uma mercadoria
-@app.route('/vender/<int:mercadoria_codigo>', methods=['POST'])
-def vender_mercadoria(mercadoria_codigo):
-    quantidade = request.form['quantidade']
+# Rota para avaliar um livro
+@app.route('/avaliar/<int:livro_id>', methods=['POST'])
+def avaliar_livro(livro_id):
+    texto_avaliacao = request.form.get('texto_avaliacao')
 
+    if not texto_avaliacao:
+        return "O campo 'Texto da Avaliação' é obrigatório.", 400
+
+    # Criar o payload apenas com o campo esperado
     payload = {
-        'quantidade': quantidade
+        'texto_avaliacao': texto_avaliacao
     }
 
-    response = requests.put(f"{API_BASE_URL}/api/v1/mercadorias/{mercadoria_codigo}/vender/", json=payload)
+    # Enviar a requisição PUT para o backend
+    response = requests.put(f"{API_BASE_URL}/api/v1/livros/{livro_id}/avaliar/", json=payload)
+
+    # Tratar respostas do backend
+    if response.status_code == 200:
+        return redirect(url_for('listar_livros'))  # Redirecionar após sucesso
+    elif response.status_code == 404:
+        return "Livro não encontrado", 404
+    else:
+        return f"Erro ao avaliar o livro: {response.text}", 500
+
+
+# Rota para listar todas as avaliacoes
+@app.route('/avaliacoes', methods=['GET'])
+def listar_avaliacoes():
+    response = requests.get(f"{API_BASE_URL}/api/v1/avaliacoes/")
+    if response.status_code != 200:
+        return "Erro ao obter avaliacoes", 500
+
+    avaliacoes = response.json()
+
+    #Obter títulos usando menos requisições
+    livro_ids = {avaliacao.get('livro_id') for avaliacao in avaliacoes}
+    livros = {}
+    if livro_ids:
+        livro_response = requests.get(f"{API_BASE_URL}/api/v1/livros/", params={"ids": ','.join(map(str,livro_ids))})
+        if livro_response.status_code == 200:
+            livros_data = livro_response.json()
+            livros = {livro['id']: livro['titulo'] for livro in livros_data}
+
+    # Adicionar título dos livros ao contexto das avaliações
+    avaliacoes_com_titulos = [
+        {
+            "id": avaliacao['id'],
+            "livro_id": avaliacao['livro_id'],
+            "texto_avaliacao": avaliacao['texto_avaliacao'],
+            "data_avaliacao": avaliacao['data_avaliacao'],
+            "titulo": livros.get(avaliacao['livro_id'], 'Título não encontrado')
+        }
+        for avaliacao in avaliacoes
+    ]
+    return render_template('avaliacoes.html', avaliacoes=avaliacoes_com_titulos)
+
+
+# Rota para excluir um livro
+@app.route('/excluir/<int:livro_id>', methods=['POST'])
+def excluir_livro(livro_id):
+    response = requests.delete(f"{API_BASE_URL}/api/v1/livros/{livro_id}")
 
     if response.status_code == 200:
-        return redirect(url_for('listar_mercadorias'))
+        return redirect(url_for('listar_livros'))
     else:
-        return "Erro ao vender mercadoria", 500
-
-
-# Rota para listar todas as vendas
-@app.route('/vendas', methods=['GET'])
-def listar_vendas():
-    response = requests.get(f"{API_BASE_URL}/api/v1/vendas/")
-    try:
-        vendas = response.json()
-    except:
-        vendas = []
-    # salvando nomes das mercadorias vendidas
-    total_vendas = 0
-    for venda in vendas:
-        total_vendas += float(venda['valor_venda'])
-    return render_template('vendas.html', vendas=vendas, total_vendas=total_vendas)
-
-
-# Rota para excluir uma mercadoria
-@app.route('/excluir/<int:mercadoria_codigo>', methods=['POST'])
-def excluir_mercadoria(mercadoria_codigo):
-    response = requests.delete(f"{API_BASE_URL}/api/v1/mercadorias/{mercadoria_codigo}")
-
-    if response.status_code == 200:
-        return redirect(url_for('listar_mercadorias'))
-    else:
-        return "Erro ao excluir mercadorias", 500
+        return "Erro ao excluir livro", 500
 
 
 # Rota para resetar o database
 @app.route('/reset-database', methods=['GET'])
 def resetar_database():
-    response = requests.delete(f"{API_BASE_URL}/api/v1/mercadorias/")
+    response = requests.delete(f"{API_BASE_URL}/api/v1/livros/")
 
     if response.status_code == 200:
         return render_template('confirmacao.html')

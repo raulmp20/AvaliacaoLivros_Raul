@@ -2,7 +2,7 @@
 FROM python:3.10-slim
 
 # Instalando dependências
-RUN pip install fastapi uvicorn asyncpg
+RUN pip install fastapi uvicorn asyncpg python-multipart
 
 # Definindo o diretório de trabalho
 WORKDIR /app
