@@ -3,15 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Database Resetado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXhW+ALEwIH" crossorigin="anonymous">
+    <title>Banco de Dados Resetado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/path/to/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <div class="container text-center mt-5">
-        <h1 class="text-success">O banco de dados foi resetado com sucesso!</h1>
-        <a href="{{ url_for('index') }}" class="btn btn-primary mt-3">Voltar à página inicial</a>
-    </div>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-database me-2"></i>
+                Gerenciamento de Sistema
+            </a>
+        </div>
+    </nav>
 
+    <!-- Hero Section -->
+    <header class="bg-success text-light py-5 text-center" style="background-image: url('https://images.pexels.com/photos/3184323/pexels-photo-3184323.jpeg'); background-size: cover; background-position: center;">
+        <h1 class="display-4 fw-bold">Banco de Dados Resetado!</h1>
+        <p class="lead">Todas as informações foram restauradas para os padrões iniciais.</p>
+    </header>
+
+    <!-- Confirmation Section -->
+    <main class="container text-center mt-5 p-4 bg-light rounded shadow">
+        <h2 class="text-success">Operação realizada com sucesso!</h2>
+        <p class="mt-3">Você pode voltar à página inicial para continuar gerenciando seu sistema.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg mt-3">Voltar à Página Inicial</a>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <p>&copy; 2024 Sistema de Gerenciamento. Todos os direitos reservados.</p>
+        <p>
+            <a href="#" class="text-light me-3">Política de Privacidade</a>
+            <a href="#" class="text-light">Termos de Uso</a>
+        </p>
+    </footer>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

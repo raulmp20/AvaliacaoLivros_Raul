@@ -1,53 +1,78 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Avaliações</title>
+    <title>Avaliações Realizadas</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/path/to/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Avaliações</a>
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-book-reader me-2"></i>
+                Sistema de Avaliação de Livros
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    <a class="nav-link" href="/cadastro">Adicionar Livro à Estante</a>
-                    <a class="nav-link" href="/prateleira">Mostrar Livros</a>
-                    <a class="nav-link" href="/avaliacoes">Mostrar Avaliações Realizadas</a>
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/cadastro">Adicionar Livro</a>
+                    <a class="nav-link" href="/prateleira">Prateleira</a>
+                    <a class="nav-link active" href="/avaliacoes">Avaliações</a>
                 </div>
             </div>
         </div>
     </nav>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
-    <div class="container mt-4">
-        <h1>Avaliações Realizadas</h1>
+    <!-- Hero Section -->
+    <header class="bg-light text-dark py-5 text-center" style="background-image: url('https://images.pexels.com/photos/167682/pexels-photo-167682.jpeg'); background-size: cover; background-position: center;">
+        <h1 class="display-4 fw-bold">Avaliações Realizadas</h1>
+        <p class="lead">Veja todas as resenhas feitas para os livros da sua estante.</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mt-5 p-4 bg-light rounded shadow">
         {% if avaliacoes %}
-        <table class="table table-bordered">
-            <thead class="table-light">
-            <tr>
-                <th>Nome do Livro</th>
-                <th>Resenha</th>
-                <th>Data da Resenha</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for avaliacao in avaliacoes %}
-            <tr>
-                <td>{{ avaliacao.titulo }}</td>
-                <td>{{ avaliacao.texto_avaliacao }}</td>
-                <td>{{ avaliacao.data_avaliacao }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Nome do Livro</th>
+                        <th>Resenha</th>
+                        <th>Data da Resenha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avaliacao in avaliacoes %}
+                    <tr>
+                        <td>{{ avaliacao.titulo }}</td>
+                        <td>{{ avaliacao.texto_avaliacao }}</td>
+                        <td>{{ avaliacao.data_avaliacao }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-        <p class="text-center">Nenhuma avaliacao encontrada.</p>
+        <p class="text-center fs-5 text-muted">Nenhuma avaliação encontrada. Que tal avaliar um livro?</p>
         {% endif %}
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <p>&copy; 2024 Sistema de Avaliação de Livros. Todos os direitos reservados.</p>
+        <p>
+            <a href="#" class="text-light me-3">Política de Privacidade</a>
+            <a href="#" class="text-light">Termos de Uso</a>
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -1,66 +1,99 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atualizar Livro</title>
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="icon" href="/path/to/favicon.ico" type="image/x-icon">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Atualizar Livro</a>
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="fas fa-edit me-2"></i>
+                Atualizar Livro
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                 <div class="navbar-nav">
-                    <a class="nav-link active" aria-current="page" href="/">Home</a>
-                    <a class="nav-link" href="/cadastro">Adicionar Livro à Estante</a>
-                    <a class="nav-link" href="/prateleira">Mostrar Livros</a>
-                    <a class="nav-link" href="/avaliacoes">Mostrar Avaliações Feitas</a>
+                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link" href="/cadastro">Adicionar Livro</a>
+                    <a class="nav-link" href="/prateleira">Prateleira</a>
+                    <a class="nav-link" href="/avaliacoes">Avaliações</a>
                 </div>
             </div>
         </div>
     </nav>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <div class="container-fluid">
+
+    <!-- Hero Section -->
+    <header class="bg-light text-dark py-5 text-center" style="background-image: url('https://images.pexels.com/photos/46274/pexels-photo-46274.jpeg'); background-size: cover; background-position: center;">
+        <h1 class="display-4 fw-bold">Atualizar Livro</h1>
+        <p class="lead">Edite as informações do livro abaixo.</p>
+    </header>
+
+    <!-- Form Section -->
+    <main class="container mt-5 p-4 bg-light rounded shadow">
         <form action="/atualizar/{{ livro.id }}" method="POST">
-            <label for="titulo" class="form-label">Titulo:</label><br>
-            <input type="text" id="titulo" name="titulo" class="form-control" placeholder="O Mágico de Oz"><br>
-            <label for="autor" class="form-label">Autor:</label><br>
-            <input type="text" id="autor" name="autor" class="form-control" placeholder="L. Frank Baum"><br><br>
-            <label for="ano_publicacao" class="form-label">Ano de Publicação:</label><br>
-            <input type="text" id="ano_publicacao" name="ano_publicacao" class="form-control" placeholder="1900"><br><br>
-            <label for="editora" class="form-label">Editora:</label><br>
-            <input type="text" id="editora" name="editora" class="form-control" placeholder="George M. Hill Company"><br><br>
-            <label for="status_leitura" class="form-label">Status de Leitura:</label><br>
-            <div>
-                <input type="radio" id="lido" name="status_leitura" value="true" class="form-check-input" onclick="toggleNota(true)">
-                <label for="lido" class="form-check-label">Lido</label><br>
-
-                <input type="radio" id="nao_lido" name="status_leitura" value="false" class="form-check-input" onclick="toggleNota(false)">
-                <label for="nao_lido" class="form-check-label">Não Lido</label>
-            </div><br>
-
-            <!-- Campo de nota (oculto por padrão) -->
-            <div id="nota-container" style="display: none;">
-                <label for="nota" class="form-label">Nota:</label><br>
-                <input type="number" id="nota" name="nota" class="form-control" placeholder="0 a 10" min="0" max="10"><br><br>
+            <div class="mb-3">
+                <label for="titulo" class="form-label">Título:</label>
+                <input type="text" id="titulo" name="titulo" class="form-control" value="{{ livro.titulo }}" required>
             </div>
-            <input type="submit" value="Inserir" class="btn btn-primary">
+            <div class="mb-3">
+                <label for="autor" class="form-label">Autor:</label>
+                <input type="text" id="autor" name="autor" class="form-control" value="{{ livro.autor }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="ano_publicacao" class="form-label">Ano de Publicação:</label>
+                <input type="number" id="ano_publicacao" name="ano_publicacao" class="form-control" value="{{ livro.ano_publicacao }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="editora" class="form-label">Editora:</label>
+                <input type="text" id="editora" name="editora" class="form-control" value="{{ livro.editora }}" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Status de Leitura:</label>
+                <div>
+                    <div class="form-check">
+                        <input type="radio" id="lido" name="status_leitura" value="true" class="form-check-input" onclick="toggleNota(true)" {{ 'checked' if livro.status_leitura == 'true' else '' }}>
+                        <label for="lido" class="form-check-label">Lido</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" id="nao_lido" name="status_leitura" value="false" class="form-check-input" onclick="toggleNota(false)" {{ 'checked' if livro.status_leitura == 'false' else '' }}>
+                        <label for="nao_lido" class="form-check-label">Não Lido</label>
+                    </div>
+                </div>
+            </div>
+            <div id="nota-container" class="mb-3" style="display: {{ 'block' if livro.status_leitura == 'true' else 'none' }};">
+                <label for="nota" class="form-label">Nota:</label>
+                <input type="number" id="nota" name="nota" class="form-control" value="{{ livro.nota }}" placeholder="0 a 10" min="0" max="10">
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Atualizar Livro</button>
         </form>
-        <script>
-            // Função para mostrar/ocultar o campo de nota com base no status de leitura
-            function toggleNota(isLido) {
-                const notaContainer = document.getElementById('nota-container');
-                if (isLido) {
-                    notaContainer.style.display = 'block'; // Mostra o campo de nota
-                } else {
-                    notaContainer.style.display = 'none'; // Oculta o campo de nota
-                    }
-            }
-        </script>
-    </div>
+    </main>
 
+    <!-- Footer -->
+    <footer class="bg-dark text-light text-center py-3 mt-5">
+        <p>&copy; 2024 Sistema de Avaliação de Livros. Todos os direitos reservados.</p>
+        <p>
+            <a href="#" class="text-light me-3">Política de Privacidade</a>
+            <a href="#" class="text-light">Termos de Uso</a>
+        </p>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        // Função para mostrar/ocultar o campo de nota com base no status de leitura
+        function toggleNota(isLido) {
+            const notaContainer = document.getElementById('nota-container');
+            notaContainer.style.display = isLido ? 'block' : 'none';
+        }
+    </script>
 </body>
 </html>
