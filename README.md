@@ -3,8 +3,7 @@
 ## Índice
 1. [Explicação](#explicação)
 2. [Tecnologias Utilizadas](#tecnologiasutilizadas)
-3. [Comandos Docker](#comandosdocker)
-4. [Integrantes](#integrantes)
+3. [Instruções para Execução](#instrucoesexecucao)
 
 ## Explicação
 
