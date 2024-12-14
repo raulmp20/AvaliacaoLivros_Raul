@@ -41,3 +41,5 @@ docker-compose up --build
 ```bash
 http://127.0.0.1:3000/
 ```
+
+Ao acessar a aplicação, certifique-se de primeiramente resetar o banco de dados, para que as informações apareçam de forma correta.
